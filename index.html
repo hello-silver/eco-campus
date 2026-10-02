@@ -1,0 +1,1517 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>교내 환경 탐사대 디지털 활동지</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js (Reliable CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <!-- html2pdf.js (스마트폰 앱 내 직접 PDF 다운로드 라이브러리) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
+    
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+    }
+    
+    .font-mono-num {
+      font-family: 'JetBrains+Mono', monospace;
+    }
+
+    /* Print Styles: 통합 인쇄 시 모든 탭 자동 노출 */
+    @media print {
+      body {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+      }
+      .no-print, nav, #global-timer-bar, .action-btn-group, #data-input-form-col {
+        display: none !important;
+      }
+      .tab-panel {
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        margin-bottom: 2rem !important;
+        page-break-inside: avoid;
+      }
+      .print-header {
+        display: block !important;
+      }
+      .blueprint-container {
+        background: #0f172a !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .chart-container-box {
+        page-break-before: always;
+      }
+      .page-break {
+        page-break-after: always;
+      }
+    }
+    
+    .print-header {
+      display: none;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col pb-16">
+
+  <!-- Top Navigation Bar -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm no-print">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <!-- Logo & Title -->
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-blue-500 flex items-center justify-center text-white shadow-md shadow-indigo-100">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-lg font-bold text-slate-900 tracking-tight">교내 환경 탐사대 디지털 활동지</h1>
+              <span class="bg-indigo-50 text-indigo-700 text-xs px-2.5 py-0.5 rounded-full font-semibold border border-indigo-200/60">금옥여고 에디션</span>
+            </div>
+            <p class="text-xs text-slate-500">스마트폰 조도·소음 센서 기반 물리적 학습 환경 맵핑 프로젝트</p>
+          </div>
+        </div>
+
+        <!-- 20-min Countdown Timer & Print Trigger -->
+        <div class="flex items-center gap-3">
+          <!-- Timer Box -->
+          <div id="global-timer-bar" class="flex items-center gap-2 bg-slate-900 text-white px-3.5 py-1.5 rounded-xl shadow-sm text-sm">
+            <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span class="text-xs text-slate-300 font-medium">탐사 제한시간</span>
+            <span id="timer-display" class="font-mono-num font-bold text-amber-300">30:00</span>
+            <button id="btn-timer-toggle" onclick="toggleTimer()" class="ml-1 text-xs bg-slate-800 hover:bg-slate-700 px-2 py-0.5 rounded border border-slate-700 transition">시작</button>
+            <button onclick="resetTimer()" class="text-xs text-slate-400 hover:text-white px-1 transition">리셋</button>
+          </div>
+
+          <!-- Master Action Buttons -->
+          <button onclick="copyFullReportText()" class="inline-flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-3 py-2 rounded-xl text-xs transition border border-slate-300">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+            리포트 복사
+          </button>
+          <button onclick="downloadPDFReport()" class="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-3.5 py-2 rounded-xl text-xs shadow-md shadow-indigo-200 transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            PDF 직접 다운로드
+          </button>
+        </div>
+      </div>
+
+      <!-- Tab Navigation Header -->
+      <nav class="flex space-x-1 border-t border-slate-100 pt-1 -mb-px">
+        <button id="nav-btn-mapping" onclick="switchTab('mapping')" class="tab-btn py-3 px-4 border-b-2 border-indigo-600 text-indigo-600 font-bold text-sm inline-flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
+          1. 교내 공간 맵핑 (Mapping)
+        </button>
+        <button id="nav-btn-chart" onclick="switchTab('chart')" class="tab-btn py-3 px-4 border-b-2 border-transparent text-slate-500 hover:text-slate-700 font-medium text-sm inline-flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          2. 기준치 비교 그래프
+        </button>
+        <button id="nav-btn-report" onclick="switchTab('report')" class="tab-btn py-3 px-4 border-b-2 border-transparent text-slate-500 hover:text-slate-700 font-medium text-sm inline-flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          3. 탐구 종합 해석
+        </button>
+        <div class="flex-1 flex justify-end items-center pr-2">
+          <span class="inline-flex items-center gap-1.5 text-xs text-emerald-600 font-semibold bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            실시간 연동 중
+          </span>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- PRINT-ONLY HEADER -->
+  <div class="print-header max-w-7xl mx-auto px-6 py-6 border-b-2 border-slate-900 mb-6">
+    <div class="flex justify-between items-end">
+      <div>
+        <h1 class="text-2xl font-black text-slate-900">교내 환경 탐사대 종합 결과 보고서</h1>
+        <p class="text-sm text-slate-600 mt-1">스마트폰 조도 및 소음 센서를 활용한 교내 물리적 환경 실측 및 공간 개선 제안</p>
+      </div>
+      <div class="text-right text-xs text-slate-500">
+        <p>금옥여자고등학교 과학탐구실험</p>
+        <p id="print-date-display">출력일시: 2026. 10. 02</p>
+      </div>
+    </div>
+  </div>
+        <!-- 3. 실제 입력 폼: 데이터 기반 우리 학교 공간 복지 제안서 -->
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-5">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center font-bold">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+              </div>
+              <div>
+                <h3 class="font-bold text-slate-800 text-sm sm:text-base">데이터 기반 우리 학교 공간 복지 제안서</h3>
+                <p class="text-[11px] text-slate-400">수집한 정량적 수치를 바탕으로 실현 가능한 과학적 개선안을 도출합니다.</p>
+              </div>
+            </div>
+            <button onclick="downloadPDFReport()" class="no-print inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg shadow-sm transition">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+              PDF 저장
+            </button>
+          </div>
+            <h2 class="font-bold text-slate-800 text-sm sm:text-base">탐사 크루 정보 (Crew Setup)</h2>
+          </div>
+          <div class="flex items-center gap-2">
+            <label class="text-xs font-semibold text-slate-500 whitespace-nowrap">모둠명</label>
+            <input type="text" id="crew-team-name" oninput="saveCrewData()" placeholder="예: 3모둠 에코탐사대" class="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-teal-500 w-44">
+          </div>
+        </div>
+
+        <!-- 4 Members Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <!-- Member 1 -->
+          <div class="bg-slate-50/70 p-3 rounded-xl border border-slate-200/60">
+            <div class="text-[11px] font-bold text-teal-700 mb-1 flex items-center justify-between">
+              <span>조원 1 (팀장)</span>
+              <span class="text-[10px] text-slate-400">#01</span>
+            </div>
+            <input type="text" id="crew-m1-name" oninput="saveCrewData()" placeholder="이름" class="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs mb-1.5 focus:outline-none focus:ring-2 focus:ring-teal-500">
+            <input type="text" id="crew-m1-role" oninput="saveCrewData()" placeholder="역할 (예: 조도 센서 측정)" class="w-full px-2 py-1 bg-white border border-slate-200 rounded text-[11px] text-slate-600 focus:outline-none focus:ring-1 focus:ring-teal-500">
+          </div>
+
+          <!-- Member 2 -->
+          <div class="bg-slate-50/70 p-3 rounded-xl border border-slate-200/60">
+            <div class="text-[11px] font-bold text-teal-700 mb-1 flex items-center justify-between">
+              <span>조원 2</span>
+              <span class="text-[10px] text-slate-400">#02</span>
+            </div>
+            <input type="text" id="crew-m2-name" oninput="saveCrewData()" placeholder="이름" class="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs mb-1.5 focus:outline-none focus:ring-2 focus:ring-teal-500">
+            <input type="text" id="crew-m2-role" oninput="saveCrewData()" placeholder="역할 (예: 소음 센서 측정)" class="w-full px-2 py-1 bg-white border border-slate-200 rounded text-[11px] text-slate-600 focus:outline-none focus:ring-1 focus:ring-teal-500">
+          </div>
+
+          <!-- Member 3 -->
+          <div class="bg-slate-50/70 p-3 rounded-xl border border-slate-200/60">
+            <div class="text-[11px] font-bold text-teal-700 mb-1 flex items-center justify-between">
+              <span>조원 3</span>
+              <span class="text-[10px] text-slate-400">#03</span>
+            </div>
+            <input type="text" id="crew-m3-name" oninput="saveCrewData()" placeholder="이름" class="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs mb-1.5 focus:outline-none focus:ring-2 focus:ring-teal-500">
+            <input type="text" id="crew-m3-role" oninput="saveCrewData()" placeholder="역할 (예: 지도 맵핑 & 기록)" class="w-full px-2 py-1 bg-white border border-slate-200 rounded text-[11px] text-slate-600 focus:outline-none focus:ring-1 focus:ring-teal-500">
+          </div>
+
+          <!-- Member 4 -->
+          <div class="bg-slate-50/70 p-3 rounded-xl border border-slate-200/60">
+            <div class="text-[11px] font-bold text-teal-700 mb-1 flex items-center justify-between">
+              <span>조원 4</span>
+              <span class="text-[10px] text-slate-400">#04</span>
+            </div>
+            <input type="text" id="crew-m4-name" oninput="saveCrewData()" placeholder="이름" class="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs mb-1.5 focus:outline-none focus:ring-2 focus:ring-teal-500">
+            <input type="text" id="crew-m4-role" oninput="saveCrewData()" placeholder="역할 (예: 타임키퍼 & 사진 촬영)" class="w-full px-2 py-1 bg-white border border-slate-200 rounded text-[11px] text-slate-600 focus:outline-none focus:ring-1 focus:ring-teal-500">
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. CAMPUS SPATIAL BLUEPRINT 카드 그리드 (다크 테마 스크린샷 완벽 대응) -->
+      <div class="blueprint-container bg-slate-900 rounded-2xl p-5 sm:p-6 border border-slate-800 text-white shadow-xl relative overflow-hidden">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-800 mb-5 gap-2">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-mono font-bold tracking-wider text-indigo-400">CAMPUS SPATIAL BLUEPRINT</span>
+              <span class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded border border-slate-700">학교 공간 블루프린트</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-0.5">학교 주요 시설 평면도 (카드를 클릭하면 하단 측정 폼으로 해당 장소가 자동 선택됩니다)</p>
+          </div>
+          <div class="flex items-center gap-3 text-xs">
+            <div class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+              <span class="text-slate-300">조도 (평균 lx)</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-sky-400"></span>
+              <span class="text-slate-300">소음도 (평균 dB)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dynamic Area Cards Grid (기본 3대 거점 + 학생 자율 추가 장소들) -->
+        <div id="blueprint-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Dynamically populated via renderBlueprintGrid() -->
+        </div>
+
+        <!-- Legend Footer -->
+        <div class="mt-5 pt-4 border-t border-slate-800/80 flex flex-wrap items-center justify-between text-[11px] text-slate-400 gap-2">
+          <div class="flex items-center gap-4">
+            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-400"></span> 적합 (기준 충족)</span>
+            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-400"></span> 조도 주의/경고</span>
+            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-rose-500"></span> 소음 초과</span>
+            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-slate-600"></span> 미측정</span>
+          </div>
+          <div class="text-slate-500 italic">※ 카드를 클릭하면 해당 장소 측정값을 바로 수정하거나 조회할 수 있습니다.</div>
+        </div>
+      </div>
+
+      <!-- 3. 탐구 데이터 3회 반복 측정 폼 & 측정 기록 표 (2-Column Grid) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Left: 탐구 데이터 기록 폼 (스크린샷 디자인 완벽 일치) -->
+        <div id="data-input-form-col" class="lg:col-span-5 bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/90 shadow-sm space-y-4">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+              </div>
+              <div>
+                <h3 class="font-bold text-slate-800 text-sm sm:text-base">탐구 데이터 기록 폼</h3>
+                <p class="text-[11px] text-slate-400">스마트폰 센서 3회 반복 측정값 입력</p>
+              </div>
+            </div>
+            <span class="text-[11px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-mono font-medium">Auto-Average</span>
+          </div>
+
+          <!-- 장소 구분 선택 & 상세 위치명 (기본 3곳 + 자율 입력) -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">장소 구분 / 거점</label>
+              <select id="input-place-type" onchange="handlePlaceSelectChange()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <option value="CUSTOM">✏️ [자유 탐사] 장소 직접 입력</option>
+                <option value="P1">1층 중앙 현관 (공통)</option>
+                <option value="P2">2층 화학실 (공통)</option>
+                <option value="P3">야외 운동장 (공통 대조군)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">상세 위치명</label>
+              <input type="text" id="input-place-name" placeholder="예: 3층 도서관 정독실, 2-3 앞" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+          </div>
+
+          <!-- 조도 (Illuminance) 3회 반복 측정 박스 -->
+          <div class="bg-amber-50/50 rounded-xl p-3.5 border border-amber-200/60 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-amber-800 flex items-center gap-1.5">
+                <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                조도 (Illuminance)
+              </span>
+              <div class="text-xs font-mono font-bold text-amber-700 bg-amber-100/80 px-2 py-0.5 rounded">
+                평균: <span id="calc-avg-light" class="text-amber-900">-</span> lux
+              </div>
+            </div>
+            <div class="grid grid-cols-3 gap-2">
+              <input type="number" id="in-light-1" oninput="calcLiveAverages()" placeholder="1회차" class="px-2.5 py-1.5 bg-white border border-amber-200 rounded-lg text-xs font-mono text-center focus:ring-2 focus:ring-amber-500 focus:outline-none">
+              <input type="number" id="in-light-2" oninput="calcLiveAverages()" placeholder="2회차" class="px-2.5 py-1.5 bg-white border border-amber-200 rounded-lg text-xs font-mono text-center focus:ring-2 focus:ring-amber-500 focus:outline-none">
+              <input type="number" id="in-light-3" oninput="calcLiveAverages()" placeholder="3회차" class="px-2.5 py-1.5 bg-white border border-amber-200 rounded-lg text-xs font-mono text-center focus:ring-2 focus:ring-amber-500 focus:outline-none">
+            </div>
+            <!-- Quick Chips -->
+            <div class="flex items-center gap-1 pt-0.5">
+              <span class="text-[10px] text-amber-700 font-medium">참고:</span>
+              <button type="button" onclick="setLightQuick(150)" class="text-[10px] bg-white border border-amber-200 text-amber-800 px-1.5 py-0.5 rounded hover:bg-amber-100">150(복도)</button>
+              <button type="button" onclick="setLightQuick(450)" class="text-[10px] bg-white border border-amber-200 text-amber-800 px-1.5 py-0.5 rounded hover:bg-amber-100">450(교실)</button>
+              <button type="button" onclick="setLightQuick(1200)" class="text-[10px] bg-white border border-amber-200 text-amber-800 px-1.5 py-0.5 rounded hover:bg-amber-100">1200(창가)</button>
+            </div>
+          </div>
+
+          <!-- 소음도 (Noise) 3회 반복 측정 박스 -->
+          <div class="bg-sky-50/50 rounded-xl p-3.5 border border-sky-200/60 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-sky-800 flex items-center gap-1.5">
+                <svg class="w-4 h-4 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
+                소음도 (Noise)
+              </span>
+              <div class="text-xs font-mono font-bold text-sky-700 bg-sky-100/80 px-2 py-0.5 rounded">
+                평균: <span id="calc-avg-sound" class="text-sky-900">-</span> dB
+              </div>
+            </div>
+            <div class="grid grid-cols-3 gap-2">
+              <input type="number" step="0.1" id="in-sound-1" oninput="calcLiveAverages()" placeholder="1회차" class="px-2.5 py-1.5 bg-white border border-sky-200 rounded-lg text-xs font-mono text-center focus:ring-2 focus:ring-sky-500 focus:outline-none">
+              <input type="number" step="0.1" id="in-sound-2" oninput="calcLiveAverages()" placeholder="2회차" class="px-2.5 py-1.5 bg-white border border-sky-200 rounded-lg text-xs font-mono text-center focus:ring-2 focus:ring-sky-500 focus:outline-none">
+              <input type="number" step="0.1" id="in-sound-3" oninput="calcLiveAverages()" placeholder="3회차" class="px-2.5 py-1.5 bg-white border border-sky-200 rounded-lg text-xs font-mono text-center focus:ring-2 focus:ring-sky-500 focus:outline-none">
+            </div>
+            <!-- Quick Chips -->
+            <div class="flex items-center gap-1 pt-0.5">
+              <span class="text-[10px] text-sky-700 font-medium">참고:</span>
+              <button type="button" onclick="setSoundQuick(38.0)" class="text-[10px] bg-white border border-sky-200 text-sky-800 px-1.5 py-0.5 rounded hover:bg-sky-100">38(도서관)</button>
+              <button type="button" onclick="setSoundQuick(52.0)" class="text-[10px] bg-white border border-sky-200 text-sky-800 px-1.5 py-0.5 rounded hover:bg-sky-100">52(수업중)</button>
+              <button type="button" onclick="setSoundQuick(72.0)" class="text-[10px] bg-white border border-sky-200 text-sky-800 px-1.5 py-0.5 rounded hover:bg-sky-100">72(급식실)</button>
+            </div>
+          </div>
+
+          <!-- 측정 시각 & 비고 -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">측정 시각</label>
+              <input type="text" id="input-time" placeholder="오후 01:25" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">환경 조건 및 특이사항</label>
+              <input type="text" id="input-note" placeholder="예: 암막 블라인드, 정숙 상태" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+          </div>
+
+          <!-- Action Button -->
+          <button type="button" onclick="addOrUpdateCheckpointRecord()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] text-white font-bold text-sm rounded-xl shadow-md shadow-indigo-100 flex items-center justify-center gap-2 transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            데이터 테이블에 추가하기
+          </button>
+        </div>
+
+        <!-- Right: 측정 기록 표 (스크린샷 일치) -->
+        <div class="lg:col-span-7 bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/90 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                </div>
+                <div>
+                  <h3 class="font-bold text-slate-800 text-sm sm:text-base">측정 기록 표 (<span id="table-record-count">0</span>건)</h3>
+                  <p class="text-[11px] text-slate-400">행 클릭 시 상세 수정 및 블루프린트 연동</p>
+                </div>
+              </div>
+              <button onclick="resetAllRecordsPrompt()" class="text-xs text-rose-500 hover:text-rose-700 font-semibold px-2 py-1 rounded hover:bg-rose-50 transition no-print">초기화</button>
+            </div>
+
+            <!-- Table Wrapper -->
+            <div class="overflow-x-auto rounded-xl border border-slate-100">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200/80">
+                  <tr>
+                    <th class="p-3">장소 / 구역</th>
+                    <th class="p-3 text-center">조도 (평균)</th>
+                    <th class="p-3 text-center">소음 (평균)</th>
+                    <th class="p-3">시각 / 비고</th>
+                    <th class="p-3 text-center w-12 no-print">삭제</th>
+                  </tr>
+                </thead>
+                <tbody id="records-table-body" class="divide-y divide-slate-100">
+                  <!-- Injected via JavaScript -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-400 flex items-center gap-1.5">
+            <svg class="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span>휴대폰 센서 앱의 센서 오차를 줄이려면 3회 이상 측정 후 평균값 기입을 권장합니다.</span>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 2: 기준치 비교 그래프 (Dual-Axis Chart) -->
+    <!-- ========================================== -->
+    <section id="tab-chart" class="tab-panel hidden space-y-6">
+
+      <div class="chart-container-box bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 mb-6 gap-3">
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-slate-900">위치별 조도(lux) 및 소음(dB) 비교 차트</h2>
+            <p class="text-xs text-slate-500 mt-0.5">이중 축(Dual Y-Axis)을 통한 구역별 빛-소리 물리 환경 패턴 대조 분석</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="inline-flex items-center text-xs font-semibold px-3 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200">
+              권장 조도: 300~500 lux
+            </span>
+            <span class="inline-flex items-center text-xs font-semibold px-3 py-1 rounded-full bg-sky-50 text-sky-800 border border-sky-200">
+              교실 소음 기준: &lt; 50 dB
+            </span>
+          </div>
+        </div>
+
+        <!-- Chart Canvas Container -->
+        <div class="relative w-full h-[380px] sm:h-[450px]">
+          <canvas id="comparisonChartCanvas"></canvas>
+        </div>
+
+        <!-- Chart Insights Summary -->
+        <div class="mt-6 pt-4 border-t border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+          <div class="p-3.5 bg-amber-50/60 rounded-xl border border-amber-200/50">
+            <h4 class="font-bold text-amber-900 mb-1 flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> 조도(Lux) 분석 포인트
+            </h4>
+            <p class="text-amber-800 leading-relaxed">자연광 유입 여부(창가 유무, 지상/지하/야외)에 따라 최대 10배 이상의 조도 격차가 발생할 수 있습니다. 300 lux 미만인 학습 구역은 조명 보완이 필요합니다.</p>
+          </div>
+          <div class="p-3.5 bg-sky-50/60 rounded-xl border border-sky-200/50">
+            <h4 class="font-bold text-sky-900 mb-1 flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-sky-500"></span> 소음도(dB) 분석 포인트
+            </h4>
+            <p class="text-sky-800 leading-relaxed">벽체 재질(콘크리트 계단 vs 흡음 텍스 천장)과 이동 통로 구조에 따라 소리 울림(잔향)이 다릅니다. 60 dB을 초과하는 실내 구역은 주의가 요구됩니다.</p>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 3: 탐구 종합 해석 및 제안서 -->
+    <!-- ========================================== -->
+    <section id="tab-report" class="tab-panel hidden space-y-6">
+
+      <!-- 1. 핫스팟(Hotspot) 자동 계산 통계 카드 -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Light Hotspot -->
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex items-start justify-between">
+          <div>
+            <span class="text-xs font-bold text-amber-600 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200">빛 환경 핫스팟</span>
+            <div class="mt-3 space-y-1 text-xs">
+              <p class="text-slate-600">가장 밝은 곳: <strong id="stat-max-light-place" class="text-slate-900">-</strong> (<span id="stat-max-light-val" class="font-mono-num font-bold text-amber-700">-</span> lux)</p>
+              <p class="text-slate-600">가장 어두운 곳: <strong id="stat-min-light-place" class="text-slate-900">-</strong> (<span id="stat-min-light-val" class="font-mono-num font-bold text-slate-700">-</span> lux)</p>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-2">두 구역 간 조도 격차: 약 <strong id="stat-light-ratio" class="text-indigo-600 font-bold">-</strong>배</p>
+          </div>
+          <div class="w-12 h-12 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-lg">
+            ☀️️
+          </div>
+        </div>
+
+        <!-- Sound Hotspot -->
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex items-start justify-between">
+          <div>
+            <span class="text-xs font-bold text-sky-600 bg-sky-50 px-2.5 py-0.5 rounded-full border border-sky-200">소리 환경 핫스팟</span>
+            <div class="mt-3 space-y-1 text-xs">
+              <p class="text-slate-600">가장 시끄러운 곳: <strong id="stat-max-sound-place" class="text-slate-900">-</strong> (<span id="stat-max-sound-val" class="font-mono-num font-bold text-rose-600">-</span> dB)</p>
+              <p class="text-slate-600">가장 정숙한 곳: <strong id="stat-min-sound-place" class="text-slate-900">-</strong> (<span id="stat-min-sound-val" class="font-mono-num font-bold text-emerald-600">-</span> dB)</p>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-2">소음 편차: 약 <strong id="stat-sound-diff" class="text-indigo-600 font-bold">-</strong> dB 차이</p>
+          </div>
+          <div class="w-12 h-12 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center font-bold text-lg">
+            🎙️
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. 상시 고정 모범 작성 예시 카드 (글씨 써도 사라지지 않음!) -->
+      <div class="no-print bg-indigo-50/70 rounded-2xl p-5 border border-indigo-200/80 shadow-sm">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="bg-indigo-600 text-white text-[11px] font-bold px-2 py-0.5 rounded">EX 모범 작성 예시</span>
+          <h4 class="text-xs font-bold text-indigo-950">아래 빈칸을 작성할 때 참고하는 표준 가이드라인 (작성 중에도 지워지지 않습니다)</h4>
+        </div>
+        <div class="space-y-2 text-xs text-indigo-900/90 leading-relaxed bg-white/80 p-3.5 rounded-xl border border-indigo-100">
+          <div>
+            <strong class="text-indigo-950">프로젝트 명칭 예시:</strong>
+            <span class="text-slate-700"> 급식실 마찰 소음 완화 및 2층 화학실 창가 눈부심 차단 프로젝트</span>
+          </div>
+          <div>
+            <strong class="text-indigo-950">1. 발견된 문제점 (Fact & Data 근거):</strong>
+            <span class="text-slate-700"> 별관 급식실 소음이 76.5 dB로 권장 기준(75 dB)을 초과하며 식기 충돌음이 크고, 화학실 창가 구역은 오후에 1,800 Lux를 초과하여 심한 눈부심과 시각 피로가 발생함.</span>
+          </div>
+          <div>
+            <strong class="text-indigo-950">2. 과학적 공간 개선 솔루션 (Action Plan):</strong>
+            <span class="text-slate-700"> ① 급식실 식탁 및 의자 다리에 실리콘 완충 캡을 장착하여 바닥 긁힘 마찰음 10 dB 저감. ② 화학실 남향 창문에 45도 루버 블라인드를 설치하여 직사광선을 간접 산란광으로 전환.</span>
+          </div>
+          <div>
+            <strong class="text-indigo-950">3. 기대 효과 (Result & Welfare):</strong>
+            <span class="text-slate-700"> 소음 스트레스 감소로 대화 집중도가 향상되고, 실험실 내 균일 조도(400~500 lux)를 유지하여 시각 피로도 35% 이상 완화 기대.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. 실제 입력 폼: 데이터 기반 우리 학교 공간 복지 제안서 -->
+      <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-5">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center font-bold">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+            </div>
+            <div>
+              <h3 class="font-bold text-slate-800 text-sm sm:text-base">데이터 기반 우리 학교 공간 복지 제안서</h3>
+              <p class="text-[11px] text-slate-400">수집한 정량적 수치를 바탕으로 실현 가능한 과학적 개선안을 도출합니다.</p>
+            </div>
+          </div>
+          <button onclick="triggerUnifiedPrint()" class="no-print inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg shadow-sm transition">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+            인쇄 / PDF 저장
+          </button>
+        </div>
+
+        <!-- Project Title -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1.5">프로젝트 명칭</label>
+          <input type="text" id="prop-title" oninput="saveProposalData()" placeholder="우리 모둠이 제안하는 공간 개선 프로젝트 제목을 입력하세요" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+
+        <!-- 2-Columns -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- 1. 문제점 -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1.5">1. 발견된 문제점 (Fact & Data 근거)</label>
+            <textarea id="prop-fact" oninput="saveProposalData()" rows="4" placeholder="※ 실제 측정한 조도(Lux)와 소음도(dB) 수치를 반드시 언급하며 작성하세요." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 leading-relaxed"></textarea>
+          </div>
+
+          <!-- 2. 개선 솔루션 -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1.5">2. 과학적 공간 개선 솔루션 (Action Plan)</label>
+            <textarea id="prop-plan" oninput="saveProposalData()" rows="4" placeholder="빛(반사/차광)과 소리(흡음/차음)의 물리적 성질을 고려하여 번호를 매겨 제안하세요." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 leading-relaxed"></textarea>
+          </div>
+        </div>
+
+        <!-- 3. 기대 효과 -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1.5">3. 기대 효과 (Result & Welfare)</label>
+          <textarea id="prop-result" oninput="saveProposalData()" rows="3" placeholder="제안이 실현되었을 때 수치 개선 예측 및 학생들의 학습권·휴식권 향상 효과를 서술하세요." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 leading-relaxed"></textarea>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Toast Alert Element -->
+  <div id="toast-box" class="fixed bottom-6 right-6 z-50 transform translate-y-16 opacity-0 transition-all duration-300 pointer-events-none bg-slate-900 text-white text-xs px-4 py-3 rounded-xl shadow-xl flex items-center gap-2 border border-slate-700">
+    <span id="toast-msg">알림 메시지</span>
+  </div>
+
+  <!-- Custom Confirm Modal -->
+  <div id="custom-modal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-5 border border-slate-200 shadow-2xl text-center space-y-3">
+      <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto text-xl font-bold">⚠️</div>
+      <h3 class="font-bold text-slate-900 text-sm" id="modal-title">초기화 확인</h3>
+      <p class="text-xs text-slate-500 leading-relaxed" id="modal-desc">측정된 모든 데이터를 초기화하시겠습니까?</p>
+      <div class="flex gap-2 pt-2">
+        <button onclick="closeModal()" class="flex-1 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl">취소</button>
+        <button id="modal-confirm-btn" class="flex-1 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold rounded-xl">확인</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==========================================
+    // IN-MEMORY SAFE DATA STORE (No LocalStorage crash)
+    // ==========================================
+    const memoryCache = {};
+
+    function safeGet(key) {
+      try {
+        const val = localStorage.getItem(key);
+        if (val !== null) return JSON.parse(val);
+      } catch (e) {
+        // iframe sandbox error fallback
+      }
+      return memoryCache[key] || null;
+    }
+
+    function safeSet(key, val) {
+      memoryCache[key] = val;
+      try {
+        localStorage.setItem(key, JSON.stringify(val));
+      } catch (e) {
+        // safe ignore
+      }
+    }
+
+    // 1. 공통 기본 거점 3곳 (요청 반영)
+    const baseStandardCheckpoints = [
+      { id: 'P1', name: '1층 중앙 현관', recLight: '200~400 lx', recSound: '≤60dB', lightMin: 200, lightMax: 400, soundMax: 60, isBase: true },
+      { id: 'P2', name: '2층 화학실', recLight: '300~600 lx', recSound: '≤55dB', lightMin: 300, lightMax: 600, soundMax: 55, isBase: true },
+      { id: 'P3', name: '야외 운동장', recLight: '1000~1000+ lx', recSound: '≤80dB', lightMin: 1000, lightMax: 9999, soundMax: 80, isBase: true }
+    ];
+
+    // Checkpoint records array
+    let checkpoints = safeGet('eco_records_data') || [
+      { id: 'P1', name: '1층 중앙 현관', detail: '1층 중앙 현관 로비', light: 320, sound: 54.2, time: '오후 01:05', note: '자연 채광 양호, 통행 인원 보통' },
+      { id: 'P2', name: '2층 화학실', detail: '2층 화학실 교탁 앞', light: 460, sound: 48.0, time: '오후 01:20', note: '형광등 점등, 정숙한 상태' },
+      { id: 'P3', name: '야외 운동장', detail: '야외 운동장 스탠드 그늘', light: 3400, sound: 62.5, time: '오후 01:35', note: '자연광 강함, 바람 소리' }
+    ];
+
+    let chartInstance = null;
+
+    // Timer Variables
+    let timerSeconds = 30 * 60;
+    let timerInterval = null;
+    let isTimerRunning = false;
+
+    // ==========================================
+    // INITIALIZATION
+    // ==========================================
+    window.addEventListener('DOMContentLoaded', () => {
+      loadCrewData();
+      loadProposalData();
+      renderBlueprintGrid();
+      renderRecordsTable();
+      updateHotspotAnalysis();
+      updatePrintDate();
+      setDefaultTimeNow();
+    });
+
+    function showToast(message) {
+      const box = document.getElementById('toast-box');
+      const msg = document.getElementById('toast-msg');
+      if (!box || !msg) return;
+      msg.textContent = message;
+      box.classList.remove('translate-y-16', 'opacity-0');
+      box.classList.add('translate-y-0', 'opacity-100');
+      setTimeout(() => {
+        box.classList.remove('translate-y-0', 'opacity-100');
+        box.classList.add('translate-y-16', 'opacity-0');
+      }, 2500);
+    }
+
+    function updatePrintDate() {
+      const el = document.getElementById('print-date-display');
+      if (!el) return;
+      const now = new Date();
+      el.textContent = `출력일시: ${now.getFullYear()}. ${String(now.getMonth()+1).padStart(2,'0')}. ${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+    }
+
+    function setDefaultTimeNow() {
+      const timeInp = document.getElementById('input-time');
+      if (timeInp && !timeInp.value) {
+        const now = new Date();
+        const ampm = now.getHours() >= 12 ? '오후' : '오전';
+        const h = now.getHours() % 12 || 12;
+        const m = String(now.getMinutes()).padStart(2, '0');
+        timeInp.value = `${ampm} ${String(h).padStart(2, '0')}:${m}`;
+      }
+    }
+
+    // ==========================================
+    // TAB NAVIGATION
+    // ==========================================
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(b => {
+        b.classList.remove('border-indigo-600', 'text-indigo-600');
+        b.classList.add('border-transparent', 'text-slate-500');
+      });
+
+      const targetPanel = document.getElementById(`tab-${tabId}`);
+      const targetBtn = document.getElementById(`nav-btn-${tabId}`);
+      if (targetPanel) targetPanel.classList.remove('hidden');
+      if (targetBtn) {
+        targetBtn.classList.remove('border-transparent', 'text-slate-500');
+        targetBtn.classList.add('border-indigo-600', 'text-indigo-600');
+      }
+
+      if (tabId === 'chart') {
+        setTimeout(renderComparisonChart, 60);
+      }
+      if (tabId === 'report') {
+        updateHotspotAnalysis();
+      }
+    }
+
+    // ==========================================
+    // BLUEPRINT CARD GRID RENDERING
+    // ==========================================
+    function renderBlueprintGrid() {
+      const grid = document.getElementById('blueprint-grid');
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      // Merge base 3 with any custom locations from checkpoints
+      const displayCards = [];
+
+      // Add base 3
+      baseStandardCheckpoints.forEach(base => {
+        const recorded = checkpoints.find(c => c.id === base.id || c.name === base.name);
+        displayCards.push({
+          id: base.id,
+          name: base.name,
+          recLight: base.recLight,
+          recSound: base.recSound,
+          lightMin: base.lightMin,
+          lightMax: base.lightMax,
+          soundMax: base.soundMax,
+          isBase: true,
+          recorded: recorded || null
+        });
+      });
+
+      // Add custom locations added by students
+      checkpoints.forEach(cp => {
+        const isBase = baseStandardCheckpoints.some(b => b.id === cp.id || b.name === cp.name);
+        if (!isBase) {
+          displayCards.push({
+            id: cp.id,
+            name: cp.name,
+            recLight: '300~600 lx',
+            recSound: '≤55dB',
+            lightMin: 300,
+            lightMax: 600,
+            soundMax: 55,
+            isBase: false,
+            recorded: cp
+          });
+        }
+      });
+
+      displayCards.forEach(card => {
+        const hasData = !!card.recorded;
+        const light = hasData ? card.recorded.light : null;
+        const sound = hasData ? card.recorded.sound : null;
+
+        // Status calculation
+        let badgeColor = 'bg-slate-800 text-slate-400 border-slate-700';
+        let badgeText = '미측정';
+
+        if (hasData) {
+          const isLightOk = light >= card.lightMin && light <= (card.lightMax || 9999);
+          const isSoundOk = sound <= card.soundMax;
+
+          if (isLightOk && isSoundOk) {
+            badgeColor = 'bg-emerald-950/80 text-emerald-400 border-emerald-800/80';
+            badgeText = '적합';
+          } else if (!isSoundOk) {
+            badgeColor = 'bg-rose-950/80 text-rose-400 border-rose-800/80';
+            badgeText = '소음초과';
+          } else {
+            badgeColor = 'bg-amber-950/80 text-amber-400 border-amber-800/80';
+            badgeText = '조도주의';
+          }
+        }
+
+        const el = document.createElement('div');
+        el.className = `p-4 rounded-xl border transition-all cursor-pointer hover:border-indigo-500/80 hover:bg-slate-800/80 ${
+          hasData ? 'bg-slate-900/90 border-slate-800' : 'bg-slate-900/50 border-slate-800/60'
+        }`;
+        el.onclick = () => selectCardForForm(card);
+
+        el.innerHTML = `
+          <div class="flex items-start justify-between mb-2">
+            <div>
+              <div class="flex items-center gap-1.5">
+                <span class="font-bold text-white text-sm tracking-tight">${card.name}</span>
+                ${card.isBase ? '' : '<span class="text-[9px] bg-indigo-950 text-indigo-300 px-1 rounded border border-indigo-800">자율</span>'}
+              </div>
+              <div class="text-[11px] text-slate-400 mt-0.5">권장: ${card.recLight} | ${card.recSound}</div>
+            </div>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border ${badgeColor}">
+              ${badgeText}
+            </span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-slate-800 text-center">
+            <div class="bg-slate-950/60 rounded-lg p-2 border border-slate-800/80">
+              <span class="text-[10px] text-slate-400 block mb-0.5">평균 조도</span>
+              <span class="font-mono-num font-bold ${hasData ? 'text-amber-400' : 'text-slate-600'} text-sm">
+                ${hasData ? light.toLocaleString() + ' lx' : '-'}
+              </span>
+            </div>
+            <div class="bg-slate-950/60 rounded-lg p-2 border border-slate-800/80">
+              <span class="text-[10px] text-slate-400 block mb-0.5">평균 소음</span>
+              <span class="font-mono-num font-bold ${hasData ? 'text-sky-400' : 'text-slate-600'} text-sm">
+                ${hasData ? sound.toFixed(1) + ' dB' : '-'}
+              </span>
+            </div>
+          </div>
+        `;
+        grid.appendChild(el);
+      });
+    }
+
+    function selectCardForForm(card) {
+      const select = document.getElementById('input-place-type');
+      const nameInp = document.getElementById('input-place-name');
+      
+      if (card.isBase) {
+        select.value = card.id;
+        nameInp.value = card.recorded ? card.recorded.detail : card.name;
+      } else {
+        select.value = 'CUSTOM';
+        nameInp.value = card.name;
+      }
+
+      if (card.recorded) {
+        document.getElementById('in-light-1').value = card.recorded.light;
+        document.getElementById('in-light-2').value = card.recorded.light;
+        document.getElementById('in-light-3').value = card.recorded.light;
+        document.getElementById('in-sound-1').value = card.recorded.sound;
+        document.getElementById('in-sound-2').value = card.recorded.sound;
+        document.getElementById('in-sound-3').value = card.recorded.sound;
+        document.getElementById('input-time').value = card.recorded.time || '';
+        document.getElementById('input-note').value = card.recorded.note || '';
+        calcLiveAverages();
+      }
+
+      showToast(`'${card.name}' 측정 폼에 로드되었습니다.`);
+      document.getElementById('data-input-form-col')?.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // ==========================================
+    // 3-TRIAL LIVE AVERAGE CALCULATION
+    // ==========================================
+    function calcLiveAverages() {
+      // Light
+      const l1 = parseFloat(document.getElementById('in-light-1').value);
+      const l2 = parseFloat(document.getElementById('in-light-2').value);
+      const l3 = parseFloat(document.getElementById('in-light-3').value);
+      const validL = [l1, l2, l3].filter(v => !isNaN(v));
+
+      const avgLDisplay = document.getElementById('calc-avg-light');
+      if (validL.length > 0) {
+        const avg = Math.round(validL.reduce((a, b) => a + b, 0) / validL.length);
+        avgLDisplay.textContent = avg.toLocaleString();
+      } else {
+        avgLDisplay.textContent = '-';
+      }
+
+      // Sound
+      const s1 = parseFloat(document.getElementById('in-sound-1').value);
+      const s2 = parseFloat(document.getElementById('in-sound-2').value);
+      const s3 = parseFloat(document.getElementById('in-sound-3').value);
+      const validS = [s1, s2, s3].filter(v => !isNaN(v));
+
+      const avgSDisplay = document.getElementById('calc-avg-sound');
+      if (validS.length > 0) {
+        const avg = (validS.reduce((a, b) => a + b, 0) / validS.length).toFixed(1);
+        avgSDisplay.textContent = avg;
+      } else {
+        avgSDisplay.textContent = '-';
+      }
+    }
+
+    function setLightQuick(val) {
+      document.getElementById('in-light-1').value = val;
+      document.getElementById('in-light-2').value = val;
+      document.getElementById('in-light-3').value = val;
+      calcLiveAverages();
+    }
+
+    function setSoundQuick(val) {
+      document.getElementById('in-sound-1').value = val;
+      document.getElementById('in-sound-2').value = val;
+      document.getElementById('in-sound-3').value = val;
+      calcLiveAverages();
+    }
+
+    function handlePlaceSelectChange() {
+      const select = document.getElementById('input-place-type');
+      const nameInp = document.getElementById('input-place-name');
+      const base = baseStandardCheckpoints.find(b => b.id === select.value);
+      if (base) {
+        nameInp.value = base.name;
+      } else {
+        nameInp.value = '';
+        nameInp.focus();
+      }
+    }
+
+    // ==========================================
+    // ADD OR UPDATE RECORD
+    // ==========================================
+    function addOrUpdateCheckpointRecord() {
+      const select = document.getElementById('input-place-type');
+      const nameInp = document.getElementById('input-place-name');
+      const placeType = select.value;
+      const placeName = nameInp.value.trim();
+
+      if (!placeName) {
+        showToast('장소 또는 상세 위치명을 입력해 주세요.');
+        nameInp.focus();
+        return;
+      }
+
+      // Compute Averages
+      const l1 = parseFloat(document.getElementById('in-light-1').value);
+      const l2 = parseFloat(document.getElementById('in-light-2').value);
+      const l3 = parseFloat(document.getElementById('in-light-3').value);
+      const validL = [l1, l2, l3].filter(v => !isNaN(v));
+
+      const s1 = parseFloat(document.getElementById('in-sound-1').value);
+      const s2 = parseFloat(document.getElementById('in-sound-2').value);
+      const s3 = parseFloat(document.getElementById('in-sound-3').value);
+      const validS = [s1, s2, s3].filter(v => !isNaN(v));
+
+      if (validL.length === 0 || validS.length === 0) {
+        showToast('조도 및 소음 측정값을 최소 1회 이상 입력해 주세요.');
+        return;
+      }
+
+      const avgLight = Math.round(validL.reduce((a, b) => a + b, 0) / validL.length);
+      const avgSound = parseFloat((validS.reduce((a, b) => a + b, 0) / validS.length).toFixed(1));
+      const timeVal = document.getElementById('input-time').value.trim() || '오후 --:--';
+      const noteVal = document.getElementById('input-note').value.trim() || '-';
+
+      const existingIndex = checkpoints.findIndex(c => c.name === placeName || (placeType !== 'CUSTOM' && c.id === placeType));
+
+      const recordItem = {
+        id: placeType === 'CUSTOM' ? `CUSTOM_${Date.now()}` : placeType,
+        name: placeName,
+        detail: placeName,
+        light: avgLight,
+        sound: avgSound,
+        time: timeVal,
+        note: noteVal
+      };
+
+      if (existingIndex >= 0) {
+        checkpoints[existingIndex] = recordItem;
+        showToast(`'${placeName}' 데이터가 업데이트되었습니다.`);
+      } else {
+        checkpoints.push(recordItem);
+        showToast(`'${placeName}' 데이터가 추가되었습니다.`);
+      }
+
+      safeSet('eco_records_data', checkpoints);
+
+      // Reset Inputs
+      document.getElementById('in-light-1').value = '';
+      document.getElementById('in-light-2').value = '';
+      document.getElementById('in-light-3').value = '';
+      document.getElementById('in-sound-1').value = '';
+      document.getElementById('in-sound-2').value = '';
+      document.getElementById('in-sound-3').value = '';
+      document.getElementById('input-note').value = '';
+      calcLiveAverages();
+      setDefaultTimeNow();
+
+      renderBlueprintGrid();
+      renderRecordsTable();
+      updateHotspotAnalysis();
+      if (chartInstance) renderComparisonChart();
+    }
+
+    // ==========================================
+    // RENDER TABLE
+    // ==========================================
+    function renderRecordsTable() {
+      const tbody = document.getElementById('records-table-body');
+      const countSpan = document.getElementById('table-record-count');
+      if (!tbody) return;
+
+      tbody.innerHTML = '';
+      countSpan.textContent = checkpoints.length;
+
+      if (checkpoints.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" class="p-6 text-center text-slate-400">
+              등록된 측정 데이터가 없습니다. 좌측 폼에서 측정값을 추가해 주세요.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      checkpoints.forEach((pt, index) => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50 transition cursor-pointer';
+        tr.onclick = (e) => {
+          if (e.target.closest('button')) return;
+          loadRecordToForm(index);
+        };
+
+        const lightBadge = pt.light > 1000 
+          ? `<span class="inline-flex px-2 py-0.5 rounded font-mono font-bold text-amber-700 bg-amber-100">${pt.light.toLocaleString()} lx</span>`
+          : `<span class="inline-flex px-2 py-0.5 rounded font-mono font-bold text-emerald-700 bg-emerald-100">${pt.light.toLocaleString()} lx</span>`;
+
+        const soundBadge = pt.sound > 60
+          ? `<span class="inline-flex px-2 py-0.5 rounded font-mono font-bold text-rose-700 bg-rose-100">${pt.sound.toFixed(1)} dB</span>`
+          : `<span class="inline-flex px-2 py-0.5 rounded font-mono font-bold text-sky-700 bg-sky-100">${pt.sound.toFixed(1)} dB</span>`;
+
+        tr.innerHTML = `
+          <td class="p-3">
+            <div class="font-bold text-slate-800 text-xs">${pt.detail || pt.name}</div>
+            <div class="text-[10px] text-slate-400">${pt.name}</div>
+          </td>
+          <td class="p-3 text-center">${lightBadge}</td>
+          <td class="p-3 text-center">${soundBadge}</td>
+          <td class="p-3">
+            <div class="font-mono text-[10px] text-slate-500 font-semibold">${pt.time}</div>
+            <div class="text-[11px] text-slate-600 truncate max-w-[140px]">${pt.note}</div>
+          </td>
+          <td class="p-3 text-center no-print">
+            <button onclick="deleteRecord(${index}, event)" class="p-1 rounded text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition" title="삭제">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function loadRecordToForm(index) {
+      const pt = checkpoints[index];
+      if (!pt) return;
+
+      const select = document.getElementById('input-place-type');
+      const nameInp = document.getElementById('input-place-name');
+      const base = baseStandardCheckpoints.find(b => b.id === pt.id || b.name === pt.name);
+      
+      if (base) {
+        select.value = base.id;
+      } else {
+        select.value = 'CUSTOM';
+      }
+      nameInp.value = pt.detail || pt.name;
+
+      document.getElementById('in-light-1').value = pt.light;
+      document.getElementById('in-light-2').value = pt.light;
+      document.getElementById('in-light-3').value = pt.light;
+      document.getElementById('in-sound-1').value = pt.sound;
+      document.getElementById('in-sound-2').value = pt.sound;
+      document.getElementById('in-sound-3').value = pt.sound;
+      document.getElementById('input-time').value = pt.time;
+      document.getElementById('input-note').value = pt.note;
+      calcLiveAverages();
+
+      showToast(`'${pt.name}' 레코드가 폼에 로드되었습니다.`);
+      document.getElementById('data-input-form-col')?.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function deleteRecord(index, event) {
+      if (event) event.stopPropagation();
+      const removed = checkpoints.splice(index, 1);
+      safeSet('eco_records_data', checkpoints);
+      renderBlueprintGrid();
+      renderRecordsTable();
+      updateHotspotAnalysis();
+      if (chartInstance) renderComparisonChart();
+      showToast(`'${removed[0]?.name || '데이터'}' 항목이 삭제되었습니다.`);
+    }
+
+    function resetAllRecordsPrompt() {
+      const modal = document.getElementById('custom-modal');
+      const confirmBtn = document.getElementById('modal-confirm-btn');
+      modal.classList.remove('hidden');
+      confirmBtn.onclick = () => {
+        checkpoints = [];
+        safeSet('eco_records_data', checkpoints);
+        renderBlueprintGrid();
+        renderRecordsTable();
+        updateHotspotAnalysis();
+        if (chartInstance) renderComparisonChart();
+        closeModal();
+        showToast('측정 기록이 모두 초기화되었습니다.');
+      };
+    }
+
+    function closeModal() {
+      document.getElementById('custom-modal')?.classList.add('hidden');
+    }
+
+    // ==========================================
+    // DUAL-AXIS COMPARISON CHART (Chart.js)
+    // ==========================================
+    function renderComparisonChart() {
+      const canvas = document.getElementById('comparisonChartCanvas');
+      if (!canvas || typeof Chart === 'undefined') return;
+
+      if (chartInstance) {
+        chartInstance.destroy();
+      }
+
+      const labels = checkpoints.map(c => c.name);
+      const lightData = checkpoints.map(c => c.light);
+      const soundData = checkpoints.map(c => c.sound);
+
+      const ctx = canvas.getContext('2d');
+      chartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels.length > 0 ? labels : ['데이터 없음'],
+          datasets: [
+            {
+              label: '조도 (lux)',
+              data: lightData.length > 0 ? lightData : [0],
+              backgroundColor: '#f59e0b',
+              borderColor: '#d97706',
+              borderWidth: 1.5,
+              borderRadius: 6,
+              yAxisID: 'yLight',
+              order: 2
+            },
+            {
+              label: '소음도 (dB)',
+              data: soundData.length > 0 ? soundData : [0],
+              backgroundColor: '#38bdf8',
+              borderColor: '#0284c7',
+              borderWidth: 1.5,
+              borderRadius: 6,
+              yAxisID: 'ySound',
+              order: 1
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            mode: 'index',
+            intersect: false
+          },
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: {
+                boxWidth: 14,
+                font: { family: 'Pretendard', size: 12, weight: 'bold' }
+              }
+            },
+            tooltip: {
+              callbacks: {
+                label: function(ctx) {
+                  const unit = ctx.dataset.yAxisID === 'yLight' ? ' lux' : ' dB';
+                  return `${ctx.dataset.label}: ${ctx.raw.toLocaleString()}${unit}`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { font: { family: 'Pretendard', size: 11, weight: '600' } }
+            },
+            yLight: {
+              type: 'linear',
+              position: 'left',
+              title: {
+                display: true,
+                text: '조도 (lux)',
+                color: '#d97706',
+                font: { family: 'Pretendard', size: 11, weight: 'bold' }
+              },
+              grid: { color: '#f1f5f9' },
+              ticks: { color: '#b45309' }
+            },
+            ySound: {
+              type: 'linear',
+              position: 'right',
+              title: {
+                display: true,
+                text: '소음 (dB)',
+                color: '#0284c7',
+                font: { family: 'Pretendard', size: 11, weight: 'bold' }
+              },
+              min: 0,
+              max: 90,
+              grid: { display: false },
+              ticks: { color: '#0369a1' }
+            }
+          }
+        }
+      });
+    }
+
+    // ==========================================
+    // TAB 3: HOTSPOT ANALYSIS & DATA PERSISTENCE
+    // ==========================================
+    function updateHotspotAnalysis() {
+      if (checkpoints.length === 0) return;
+
+      // Light
+      const sortedLight = [...checkpoints].sort((a, b) => b.light - a.light);
+      const maxL = sortedLight[0];
+      const minL = sortedLight[sortedLight.length - 1];
+
+      document.getElementById('stat-max-light-place').textContent = maxL.name;
+      document.getElementById('stat-max-light-val').textContent = maxL.light.toLocaleString();
+      document.getElementById('stat-min-light-place').textContent = minL.name;
+      document.getElementById('stat-min-light-val').textContent = minL.light.toLocaleString();
+
+      const ratio = minL.light > 0 ? (maxL.light / minL.light).toFixed(1) : '∞';
+      document.getElementById('stat-light-ratio').textContent = ratio;
+
+      // Sound
+      const sortedSound = [...checkpoints].sort((a, b) => b.sound - a.sound);
+      const maxS = sortedSound[0];
+      const minS = sortedSound[sortedSound.length - 1];
+
+      document.getElementById('stat-max-sound-place').textContent = maxS.name;
+      document.getElementById('stat-max-sound-val').textContent = maxS.sound.toFixed(1);
+      document.getElementById('stat-min-sound-place').textContent = minS.name;
+      document.getElementById('stat-min-sound-val').textContent = minS.sound.toFixed(1);
+
+      const sDiff = (maxS.sound - minS.sound).toFixed(1);
+      document.getElementById('stat-sound-diff').textContent = sDiff;
+    }
+
+    function saveCrewData() {
+      const crew = {
+        team: document.getElementById('crew-team-name')?.value || '',
+        m1Name: document.getElementById('crew-m1-name')?.value || '',
+        m1Role: document.getElementById('crew-m1-role')?.value || '',
+        m2Name: document.getElementById('crew-m2-name')?.value || '',
+        m2Role: document.getElementById('crew-m2-role')?.value || '',
+        m3Name: document.getElementById('crew-m3-name')?.value || '',
+        m3Role: document.getElementById('crew-m3-role')?.value || '',
+        m4Name: document.getElementById('crew-m4-name')?.value || '',
+        m4Role: document.getElementById('crew-m4-role')?.value || ''
+      };
+      safeSet('eco_crew_info', crew);
+    }
+
+    function loadCrewData() {
+      const crew = safeGet('eco_crew_info');
+      if (!crew) return;
+      if (document.getElementById('crew-team-name')) document.getElementById('crew-team-name').value = crew.team || '';
+      if (document.getElementById('crew-m1-name')) document.getElementById('crew-m1-name').value = crew.m1Name || '';
+      if (document.getElementById('crew-m1-role')) document.getElementById('crew-m1-role').value = crew.m1Role || '';
+      if (document.getElementById('crew-m2-name')) document.getElementById('crew-m2-name').value = crew.m2Name || '';
+      if (document.getElementById('crew-m2-role')) document.getElementById('crew-m2-role').value = crew.m2Role || '';
+      if (document.getElementById('crew-m3-name')) document.getElementById('crew-m3-name').value = crew.m3Name || '';
+      if (document.getElementById('crew-m3-role')) document.getElementById('crew-m3-role').value = crew.m3Role || '';
+      if (document.getElementById('crew-m4-name')) document.getElementById('crew-m4-name').value = crew.m4Name || '';
+      if (document.getElementById('crew-m4-role')) document.getElementById('crew-m4-role').value = crew.m4Role || '';
+    }
+
+    function saveProposalData() {
+      const prop = {
+        title: document.getElementById('prop-title')?.value || '',
+        fact: document.getElementById('prop-fact')?.value || '',
+        plan: document.getElementById('prop-plan')?.value || '',
+        result: document.getElementById('prop-result')?.value || ''
+      };
+      safeSet('eco_proposal_info', prop);
+    }
+
+    function loadProposalData() {
+      const prop = safeGet('eco_proposal_info');
+      if (!prop) return;
+      if (document.getElementById('prop-title')) document.getElementById('prop-title').value = prop.title || '';
+      if (document.getElementById('prop-fact')) document.getElementById('prop-fact').value = prop.fact || '';
+      if (document.getElementById('prop-plan')) document.getElementById('prop-plan').value = prop.plan || '';
+      if (document.getElementById('prop-result')) document.getElementById('prop-result').value = prop.result || '';
+    }
+
+    // ==========================================
+    // TIMER CONTROLS
+    // ==========================================
+    function toggleTimer() {
+      const btn = document.getElementById('btn-timer-toggle');
+      if (isTimerRunning) {
+        clearInterval(timerInterval);
+        isTimerRunning = false;
+        btn.textContent = '재개';
+      } else {
+        isTimerRunning = true;
+        btn.textContent = '정지';
+        timerInterval = setInterval(() => {
+          if (timerSeconds > 0) {
+            timerSeconds--;
+            updateTimerDisplay();
+          } else {
+            clearInterval(timerInterval);
+            isTimerRunning = false;
+            btn.textContent = '종료';
+            showToast('⏰ 탐사 제한시간 30분이 종료되었습니다! 교실로 복귀하세요.');
+          }
+        }, 1000);
+      }
+    }
+
+    function resetTimer() {
+      clearInterval(timerInterval);
+      isTimerRunning = false;
+      timerSeconds = 30 * 60;
+      updateTimerDisplay();
+      const btn = document.getElementById('btn-timer-toggle');
+      if (btn) btn.textContent = '시작';
+    }
+
+    function updateTimerDisplay() {
+      const m = Math.floor(timerSeconds / 60);
+      const s = timerSeconds % 60;
+      const display = document.getElementById('timer-display');
+      if (display) {
+        display.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      }
+    }
+
+    // ==========================================
+    // EXPORT & PRINT
+    // ==========================================
+    function triggerUnifiedPrint() {
+      updatePrintDate();
+      renderComparisonChart();
+      setTimeout(() => {
+        window.print();
+      }, 200);
+    }
+
+    async function downloadPDFReport() {
+      showToast('📄 PDF 보고서를 생성하고 있습니다. 잠시만 기다려 주세요...');
+
+      // 1. 차트 렌더링 확인 및 이미지 추출
+      if (!chartInstance) renderComparisonChart();
+      await new Promise(r => setTimeout(r, 150));
+      
+      const chartCanvas = document.getElementById('comparisonChartCanvas');
+      let chartImgUrl = '';
+      if (chartCanvas) {
+        try {
+          chartImgUrl = chartCanvas.toDataURL('image/png');
+        } catch (e) {
+          // ignore
+        }
+      }
+
+      // 2. 정보 취합
+      const crew = safeGet('eco_crew_info') || {};
+      const teamName = crew.team || document.getElementById('crew-team-name')?.value || '탐사 모둠';
+      const m1 = `${crew.m1Name || document.getElementById('crew-m1-name')?.value || '조원1'}(${crew.m1Role || document.getElementById('crew-m1-role')?.value || '역할미정'})`;
+      const m2 = `${crew.m2Name || document.getElementById('crew-m2-name')?.value || '조원2'}(${crew.m2Role || document.getElementById('crew-m2-role')?.value || '역할미정'})`;
+      const m3 = `${crew.m3Name || document.getElementById('crew-m3-name')?.value || '조원3'}(${crew.m3Role || document.getElementById('crew-m3-role')?.value || '역할미정'})`;
+      const m4 = `${crew.m4Name || document.getElementById('crew-m4-name')?.value || '조원4'}(${crew.m4Role || document.getElementById('crew-m4-role')?.value || '역할미정'})`;
+
+      const title = document.getElementById('prop-title')?.value || '제목 미작성';
+      const fact = document.getElementById('prop-fact')?.value || '내용 없음';
+      const plan = document.getElementById('prop-plan')?.value || '내용 없음';
+      const result = document.getElementById('prop-result')?.value || '내용 없음';
+
+      const now = new Date();
+      const dateStr = `${now.getFullYear()}. ${String(now.getMonth()+1).padStart(2,'0')}. ${String(now.getDate()).padStart(2,'0')}`;
+
+      // 3. 인쇄 전용 A4 고해상도 HTML 템플릿 DOM 동적 생성
+      const exportDiv = document.createElement('div');
+      exportDiv.style.width = '794px'; // A4 standard width at 96dpi
+      exportDiv.style.backgroundColor = '#ffffff';
+      exportDiv.style.color = '#0f172a';
+      exportDiv.style.fontFamily = "'Pretendard', sans-serif";
+      exportDiv.style.padding = '36px';
+      exportDiv.style.boxSizing = 'border-box';
+
+      // 테이블 행 생성
+      const tableRows = checkpoints.map((c, i) => `
+        <tr style="border-bottom: 1px solid #e2e8f0; font-size: 11px;">
+          <td style="padding: 7px 10px; font-weight: bold; color: #1e293b;">${c.detail || c.name}</td>
+          <td style="padding: 7px 10px; text-align: center; color: #b45309; font-weight: bold; font-family: monospace;">${c.light.toLocaleString()} lux</td>
+          <td style="padding: 7px 10px; text-align: center; color: #0284c7; font-weight: bold; font-family: monospace;">${c.sound.toFixed(1)} dB</td>
+          <td style="padding: 7px 10px; color: #64748b; font-size: 10px;">${c.time || '-'} / ${c.note || '-'}</td>
+        </tr>
+      `).join('');
+
+      exportDiv.innerHTML = `
+        <div style="border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: flex-end;">
+          <div>
+            <div style="font-size: 11px; font-weight: bold; color: #4f46e5; margin-bottom: 3px;">금옥여자고등학교 과학탐구실험</div>
+            <h1 style="font-size: 20px; font-weight: 800; color: #0f172a; margin: 0;">교내 환경 탐사대 종합 결과 보고서</h1>
+          </div>
+          <div style="text-align: right; font-size: 11px; color: #64748b;">
+            <div>모둠명: <strong style="color: #0f172a;">${teamName}</strong></div>
+            <div>발행일시: ${dateStr}</div>
+          </div>
+        </div>
+
+        <!-- 크루 정보 -->
+        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; font-size: 11px;">
+          <span style="font-weight: bold; color: #0f172a;">👥 탐사 크루: </span>
+          <span style="color: #334155;">${m1} · ${m2} · ${m3} · ${m4}</span>
+        </div>
+
+        <!-- 측정 데이터 테이블 -->
+        <div style="margin-bottom: 16px;">
+          <h3 style="font-size: 13px; font-weight: 700; color: #0f172a; margin-bottom: 6px;">1. 현장 실측 데이터 기록표 (${checkpoints.length}개 거점)</h3>
+          <table style="width: 100%; border-collapse: collapse; border: 1px solid #e2e8f0; text-align: left;">
+            <thead>
+              <tr style="background-color: #f1f5f9; font-size: 11px; color: #475569; border-bottom: 1px solid #cbd5e1;">
+                <th style="padding: 7px 10px;">장소 / 구역</th>
+                <th style="padding: 7px 10px; text-align: center;">평균 조도</th>
+                <th style="padding: 7px 10px; text-align: center;">평균 소음도</th>
+                <th style="padding: 7px 10px;">측정 시각 및 비고</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${tableRows || '<tr><td colspan="4" style="text-align:center; padding:12px; color:#94a3b8;">측정된 데이터가 없습니다.</td></tr>'}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 비교 그래프 -->
+        <div style="margin-bottom: 18px;">
+          <h3 style="font-size: 13px; font-weight: 700; color: #0f172a; margin-bottom: 6px;">2. 구역별 조도(lux) 및 소음(dB) 비교 차트</h3>
+          <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px; text-align: center;">
+            ${chartImgUrl ? `<img src="${chartImgUrl}" style="max-width: 100%; height: 210px; object-fit: contain; margin: 0 auto; display: block;" />` : '<div style="padding:20px; color:#94a3b8; font-size:11px;">차트 이미지를 생성할 수 없습니다.</div>'}
+          </div>
+        </div>
+
+        <!-- 공간 복지 제안서 -->
+        <div style="border: 1px solid #c7d2fe; background-color: #f5f7ff; border-radius: 8px; padding: 14px;">
+          <h3 style="font-size: 13px; font-weight: 800; color: #3730a3; margin-bottom: 8px;">3. 데이터 기반 우리 학교 공간 복지 제안서</h3>
+          
+          <div style="margin-bottom: 8px; font-size: 12px;">
+            <strong style="color: #1e1b4b;">■ 제안 프로젝트명: </strong>
+            <span style="font-weight: 600; color: #4338ca;">${title}</span>
+          </div>
+
+          <div style="margin-bottom: 8px; font-size: 11px; line-height: 1.5;">
+            <strong style="color: #1e293b; display: block; margin-bottom: 2px;">(1) 발견된 문제점 (Fact & Data 근거):</strong>
+            <div style="background: #ffffff; padding: 7px 10px; border-radius: 6px; border: 1px solid #e2e8f0; white-space: pre-wrap; color: #334155;">${fact}</div>
+          </div>
+
+          <div style="margin-bottom: 8px; font-size: 11px; line-height: 1.5;">
+            <strong style="color: #1e293b; display: block; margin-bottom: 2px;">(2) 과학적 공간 개선 솔루션 (Action Plan):</strong>
+            <div style="background: #ffffff; padding: 7px 10px; border-radius: 6px; border: 1px solid #e2e8f0; white-space: pre-wrap; color: #334155;">${plan}</div>
+          </div>
+
+          <div style="font-size: 11px; line-height: 1.5;">
+            <strong style="color: #1e293b; display: block; margin-bottom: 2px;">(3) 기대 효과 (Result & Welfare):</strong>
+            <div style="background: #ffffff; padding: 7px 10px; border-radius: 6px; border: 1px solid #e2e8f0; white-space: pre-wrap; color: #334155;">${result}</div>
+          </div>
+        </div>
+      `;
+
+      // 4. html2pdf 실행
+      const cleanFileName = `금옥여고_환경탐사_${teamName.replace(/\s+/g, '_')}_보고서.pdf`;
+
+      const opt = {
+        margin: [8, 8, 8, 8],
+        filename: cleanFileName,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      try {
+        if (typeof html2pdf !== 'undefined') {
+          await html2pdf().set(opt).from(exportDiv).save();
+          showToast(`✅ '${cleanFileName}' 파일이 다운로드되었습니다!`);
+        } else {
+          // CDN 차단 시 대체 인쇄 실행
+          triggerUnifiedPrint();
+        }
+      } catch (err) {
+        // 실패 시 브라우저 인쇄 대체
+        triggerUnifiedPrint();
+      }
+    }
+
+    function copyFullReportText() {
+      const team = document.getElementById('crew-team-name')?.value || '미정 모둠';
+      const m1 = `${document.getElementById('crew-m1-name')?.value || '조원1'}(${document.getElementById('crew-m1-role')?.value || '역할미정'})`;
+      const m2 = `${document.getElementById('crew-m2-name')?.value || '조원2'}(${document.getElementById('crew-m2-role')?.value || '역할미정'})`;
+      const m3 = `${document.getElementById('crew-m3-name')?.value || '조원3'}(${document.getElementById('crew-m3-role')?.value || '역할미정'})`;
+      const m4 = `${document.getElementById('crew-m4-name')?.value || '조원4'}(${document.getElementById('crew-m4-role')?.value || '역할미정'})`;
+
+      let tableText = checkpoints.map((c, i) => `${i+1}. [${c.name}] 조도: ${c.light} lx / 소음: ${c.sound} dB (시각: ${c.time}, 비고: ${c.note})`).join('\n');
+
+      const title = document.getElementById('prop-title')?.value || '제목 미작성';
+      const fact = document.getElementById('prop-fact')?.value || '내용 없음';
+      const plan = document.getElementById('prop-plan')?.value || '내용 없음';
+      const result = document.getElementById('prop-result')?.value || '내용 없음';
+
+      const fullReport = `[교내 환경 탐사대 종합 보고서]
+모둠명: ${team}
+크루 명단: ${m1}, ${m2}, ${m3}, ${m4}
+
+■ 측정 데이터 현황 (${checkpoints.length}개 지점)
+${tableText}
+
+■ 데이터 기반 공간 복지 제안서
+프로젝트명: ${title}
+1. 발견된 문제점 (Fact & Data):
+${fact}
+
+2. 과학적 공간 개선 솔루션 (Action Plan):
+${plan}
+
+3. 기대 효과 (Result & Welfare):
+${result}
+`;
+
+      // Copy text safely
+      const tempArea = document.createElement('textarea');
+      tempArea.value = fullReport;
+      document.body.appendChild(tempArea);
+      tempArea.select();
+      try {
+        document.execCommand('copy');
+        showToast('📋 전체 보고서 내용이 클립보드에 복사되었습니다!');
+      } catch (err) {
+        showToast('복사에 실패했습니다. 직접 복사해 주세요.');
+      }
+      document.body.removeChild(tempArea);
+    }
+  </script>
+</body>
+</html>
